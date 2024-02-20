@@ -1,18 +1,32 @@
-// express 불러오기
 const express = require("express");
-// express 인스턴스 생성
+const { Pool } = require("pg");
 const app = express();
-// 포트 정보
-const port = 8000;
+app.use(express.json());
 
-// 라우트 설정
-// HTTP GET 방식으로 '/' 경로를 요청하였을 때
-// Hello World!라는 문자열을 결과값으로 보냄
-app.get("/", (req, res) => {
-    res.send("Hello World!");
+const pool = new Pool({
+    host: process.env.DATABASE_HOST,
+    database: process.env.DATABASE_NAME,
+    username: process.env.DATABASE_USER,
+    password: process.env.DATABASE_PASSWORD,
+    ssl: "require",
 });
 
-// 서버 실행
-app.listen(port, () => {
-    console.log(`App running on port ${port}...`);
+app.get("/todos/get", async (req, res) => {
+    const result = await pool.query("SELECT * FROM todos");
+    res.json(result.rows);
 });
+
+app.post("/todos/add", async (req, res) => {
+    const { title } = req.body;
+    const result = await pool.query("INSERT INTO todos (title, completed) VALUES ($1, $2) RETURNING *", [title, false]);
+    res.status(201).json(result.rows[0]);
+});
+
+app.delete("/todos/delete/:id", async (req, res) => {
+    const id = parseInt(req.params.id);
+    await pool.query("DELETE FROM todos WHERE id = $1", [id]);
+    res.status(204).end();
+});
+
+const port = process.env.PORT || 8000;
+app.listen(port, () => console.log(`Server running on port ${port}`));
