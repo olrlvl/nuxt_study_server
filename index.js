@@ -1,4 +1,5 @@
 const express = require("express");
+const router = express.Router();
 const { Pool } = require("pg");
 const app = express();
 app.use(express.json());
@@ -12,6 +13,12 @@ const pool = new Pool({
 });
 
 console.log(pool);
+
+router.get("/", function (req, res, next) {
+    res.status(200).json({
+        message: "메시지 테스트",
+    });
+});
 
 app.get("/todos/get", async (req, res) => {
     const result = await pool.query("SELECT * FROM todos");
