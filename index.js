@@ -11,6 +11,8 @@ const pool = new Pool({
     ssl: "require",
 });
 
+console.log(pool);
+
 app.get("/todos/get", async (req, res) => {
     const result = await pool.query("SELECT * FROM todos");
     res.json(result.rows);
