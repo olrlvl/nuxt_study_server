@@ -1,41 +1,41 @@
-const express = require("express");
-const router = express.Router();
-const { Pool } = require("pg");
-const app = express();
-app.use(express.json());
+require("dotenv").config();
 
-const pool = new Pool({
+const list = require("./api/list");
+
+const express = require("express");
+const app = express();
+
+const { Pool } = require("pg");
+
+app.use(express.json());
+app.use("/list", list);
+
+const pg = new Pool({
+    user: process.env.DATABASE_USER,
     host: process.env.DATABASE_HOST,
     database: process.env.DATABASE_NAME,
-    username: process.env.DATABASE_USER,
     password: process.env.DATABASE_PASSWORD,
-    ssl: "require",
+    ssl: { rejectUnauthorized: true },
 });
 
-console.log(pool);
-
-router.get("/", function (req, res, next) {
-    res.status(200).json({
-        message: "메시지 테스트",
-    });
-});
+pg.connect((err) => (err ? console.error("connection error", err.stack) : console.log("connected")));
 
 app.get("/todos/get", async (req, res) => {
-    const result = await pool.query("SELECT * FROM todos");
+    const result = await pg.query("SELECT * FROM todos");
     res.json(result.rows);
 });
 
-app.post("/todos/add", async (req, res) => {
-    const { title } = req.body;
-    const result = await pool.query("INSERT INTO todos (title, completed) VALUES ($1, $2) RETURNING *", [title, false]);
-    res.status(201).json(result.rows[0]);
-});
+// app.post("/todos/add", async (req, res) => {
+//     const { title } = req.body;
+//     const result = await pg.query("INSERT INTO todos (title, completed, created_at, updated_at) VALUES ($1, $2, NOW(), NOW()) RETURNING *", [title, false]);
+//     res.status(201).json(result.rows[0]);
+// });
 
-app.delete("/todos/delete/:id", async (req, res) => {
-    const id = parseInt(req.params.id);
-    await pool.query("DELETE FROM todos WHERE id = $1", [id]);
-    res.status(204).end();
-});
+// app.delete("/todos/delete/:id", async (req, res) => {
+//     const id = parseInt(req.params.id);
+//     await pg.query("DELETE FROM todos WHERE id = $1", [id]);
+//     res.status(204).end();
+// });
 
 const port = process.env.PORT || 8000;
 app.listen(port, () => console.log(`Server running on port ${port}`));
