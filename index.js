@@ -16,9 +16,14 @@ const pg = new Pool({
     database: process.env.DATABASE_NAME,
     password: process.env.DATABASE_PASSWORD,
     ssl: { rejectUnauthorized: true },
+    port: 5432,
 });
 
 pg.connect((err) => (err ? console.error("connection error", err.stack) : console.log("connected")));
+
+app.get("/", (req, res) => {
+    res.send("Hello World");
+});
 
 app.get("/todos/get", async (req, res) => {
     const result = await pg.query("SELECT * FROM todos");
