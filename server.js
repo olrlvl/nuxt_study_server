@@ -1,32 +1,21 @@
-require("dotenv").config();
+// 모듈 임포트
+import express, { json } from "express";
+import pool from "./db.js";
 
-const list = require("./api/list");
-
-const express = require("express");
+// 앱 및 미들웨어 설정
 const app = express();
+app.use(json());
 
-const { Pool } = require("pg");
+// 데이터베이스 연결 상태
+pool.connect((err) => (err ? console.error("연결 에러", err.stack) : console.log("연결 성공")));
 
-app.use(express.json());
-app.use("/list", list);
-
-const pg = new Pool({
-    user: process.env.DATABASE_USER,
-    host: process.env.DATABASE_HOST,
-    database: process.env.DATABASE_NAME,
-    password: process.env.DATABASE_PASSWORD,
-    ssl: { rejectUnauthorized: true },
-    port: 5432,
-});
-
-pg.connect((err) => (err ? console.error("connection error", err.stack) : console.log("connected")));
-
+// 라우트 설정
 app.get("/", (req, res) => {
     res.send("Hello World");
 });
 
 app.get("/todos/get", async (req, res) => {
-    const result = await pg.query("SELECT * FROM todos");
+    const result = await pool.query("SELECT * FROM todos");
     res.json(result.rows);
 });
 
