@@ -44,7 +44,7 @@ router.delete("/delete/:id", async (req, res, next) => {
     }
 });
 
-// Todo Update
+// Todo Complete Status Update
 router.put("/complete/:id", async (req, res, next) => {
     try {
         const id = parseInt(req.params.id);
@@ -61,12 +61,5 @@ router.put("/complete/:id", async (req, res, next) => {
         next(error);
     }
 });
-
-export function errorHandler() {
-    return function (err, req, res, next) {
-        console.error(err.stack);
-        res.status(500).send("내부 서버 오류");
-    };
-}
 
 export default router;

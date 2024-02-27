@@ -1,6 +1,6 @@
 // 모듈 임포트
 import express, { json } from "express";
-import { errorHandler } from "./api/todo.js";
+import { errorHandler } from "./middleware/error.js";
 import registerRoutes from "./routes/index.js";
 import createCompressionMiddleware from "./middleware/compression.js";
 
@@ -23,6 +23,6 @@ function configureApp() {
 
 const app = configureApp();
 const port = process.env.PORT || 8000;
-app.listen(port, () => console.log(`Server running on port ${port}`));
+app.listen(port, () => console.log(`서버 실행중 포트 : ${port}`));
 
 export default app;
