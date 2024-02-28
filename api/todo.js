@@ -8,8 +8,6 @@ router.get("/list", async (req, res, next) => {
     try {
         const result = await pool.query("SELECT * FROM todos");
 
-        console.log(result.rows);
-
         res.status(200).json(result.rows);
     } catch (error) {
         next(error);
